@@ -2,7 +2,7 @@ import { getCollection } from 'astro:content';
 
 export async function GET({ site }) {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  const base = 'https://noob-slayer.github.io/sidd';
+  const base = 'https://noob-slayer.github.io/blogs';
 
   const urls = [
     { loc: `${base}/`, lastmod: new Date().toISOString() },
