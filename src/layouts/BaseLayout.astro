@@ -1,0 +1,126 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  canonicalURL?: string;
+  ogImage?: string;
+  article?: {
+    publishedTime: string;
+    author: string;
+    tags: string[];
+  };
+}
+
+const {
+  title,
+  description = 'Personal blog by Siddharth Rajpriye — trekking, travel, ideas, and life.',
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+  ogImage = new URL('/sidd/og-default.png', Astro.site).href,
+  article,
+} = Astro.props;
+
+const siteName = 'Siddharth Rajpriye';
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="sitemap" href="/sidd/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title={siteName} href="/sidd/rss.xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content={siteName} />
+
+    {article && (
+      <>
+        <meta property="article:published_time" content={article.publishedTime} />
+        <meta property="article:author" content={article.author} />
+        {article.tags.map(tag => <meta property="article:tag" content={tag} />)}
+      </>
+    )}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Schema.org JSON-LD -->
+    {article && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        author: {
+          '@type': 'Person',
+          name: article.author,
+          url: 'https://noob-slayer.github.io/sidd',
+        },
+        publisher: {
+          '@type': 'Person',
+          name: siteName,
+        },
+        datePublished: article.publishedTime,
+        url: canonicalURL,
+        keywords: article.tags.join(', '),
+      })} />
+    )}
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+    <link rel="icon" type="image/svg+xml" href="/sidd/favicon.svg" />
+
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-serif: 'Lora', Georgia, serif;
+        --color-text: #292929;
+        --color-text-light: #6b6b6b;
+        --color-accent: #1a8917;
+        --color-border: #e6e6e6;
+        --color-bg: #fff;
+        --color-bg-alt: #f9f9f9;
+        --max-w-article: 680px;
+        --max-w-site: 1200px;
+      }
+
+      html { font-size: 16px; scroll-behavior: smooth; }
+
+      body {
+        font-family: var(--font-sans);
+        color: var(--color-text);
+        background: var(--color-bg);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      img { max-width: 100%; height: auto; display: block; }
+
+      ::selection { background: #c8e6c9; }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

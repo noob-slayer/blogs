@@ -1,0 +1,292 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, author, tags, readingTime } = post.data;
+
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  article={{
+    publishedTime: pubDate.toISOString(),
+    author,
+    tags,
+  }}
+>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/sidd/" class="logo">Siddharth Rajpriye</a>
+      <nav>
+        <a href="/sidd/">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="article-main">
+    <article class="article">
+      <div class="article-header">
+        <div class="tags">
+          {tags.map(tag => <span class="tag">{tag}</span>)}
+        </div>
+        <h1 class="article-title">{title}</h1>
+        <p class="article-subtitle">{description}</p>
+        <div class="article-meta">
+          <span class="author">{author}</span>
+          <span class="dot">·</span>
+          <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+          {readingTime && (
+            <>
+              <span class="dot">·</span>
+              <span>{readingTime} min read</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div class="article-divider"></div>
+
+      <div class="article-body">
+        <slot />
+      </div>
+
+      <div class="article-divider"></div>
+
+      <footer class="article-footer">
+        <div class="tags-footer">
+          {tags.map(tag => <a href={`/sidd/tag/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag tag--link">{tag}</a>)}
+        </div>
+        <div class="author-card">
+          <div class="author-avatar">{author.charAt(0)}</div>
+          <div class="author-info">
+            <strong>{author}</strong>
+            <p>Writing about trekking, travel, fintech, and life.</p>
+          </div>
+        </div>
+        <a href="/sidd/" class="back-link">← All posts</a>
+      </footer>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>© {new Date().getFullYear()} {author} · Built with <a href="https://astro.build">Astro</a></p>
+  </footer>
+</BaseLayout>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: var(--max-w-site);
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  nav a {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--color-text); }
+
+  .article-main {
+    padding: 48px 24px 80px;
+  }
+  .article {
+    max-width: var(--max-w-article);
+    margin: 0 auto;
+  }
+
+  .article-header { margin-bottom: 32px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    background: #e8f5e9;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+  .tag--link:hover { background: #c8e6c9; }
+
+  .article-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-text);
+    margin-bottom: 16px;
+  }
+  .article-subtitle {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+  }
+  .author { font-weight: 500; color: var(--color-text); }
+  .dot { opacity: 0.4; }
+
+  .article-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 32px 0;
+  }
+
+  .article-body {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+  .article-body :global(h2) {
+    font-family: var(--font-sans);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 2.5em 0 0.75em;
+    color: var(--color-text);
+    line-height: 1.3;
+  }
+  .article-body :global(h3) {
+    font-family: var(--font-sans);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 2em 0 0.6em;
+  }
+  .article-body :global(p) { margin-bottom: 1.5em; }
+  .article-body :global(p:last-child) { margin-bottom: 0; }
+  .article-body :global(blockquote) {
+    border-left: 3px solid var(--color-accent);
+    padding: 4px 0 4px 20px;
+    margin: 1.5em 0;
+    color: var(--color-text-light);
+    font-style: italic;
+  }
+  .article-body :global(ul), .article-body :global(ol) {
+    padding-left: 1.5em;
+    margin-bottom: 1.5em;
+  }
+  .article-body :global(li) { margin-bottom: 0.4em; }
+  .article-body :global(strong) { font-weight: 600; color: var(--color-text); }
+  .article-body :global(em) { font-style: italic; }
+  .article-body :global(code) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+    background: var(--color-bg-alt);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .article-body :global(pre) {
+    background: #f6f8fa;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin-bottom: 1.5em;
+  }
+  .article-body :global(hr) {
+    border: none;
+    text-align: center;
+    margin: 2.5em 0;
+    color: var(--color-text-light);
+    font-size: 1.2em;
+    letter-spacing: 0.5em;
+  }
+  .article-body :global(hr::after) { content: '···'; }
+  .article-body :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .article-body :global(img) {
+    border-radius: 8px;
+    margin: 1.5em 0;
+    width: 100%;
+  }
+
+  .article-footer { }
+  .tags-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+
+  .author-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: var(--color-bg-alt);
+    border-radius: 12px;
+    margin-bottom: 32px;
+  }
+  .author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .author-info strong { display: block; margin-bottom: 4px; }
+  .author-info p { font-size: 0.875rem; color: var(--color-text-light); }
+
+  .back-link {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--color-text); }
+
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 24px;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+  }
+  .site-footer a { color: var(--color-accent); }
+
+  @media (max-width: 640px) {
+    .article-main { padding: 32px 16px 60px; }
+  }
+</style>
